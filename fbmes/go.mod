@@ -1,4 +1,4 @@
-module fbmes
+module github.com/adrianbrad/kit/fbmes
 
 go 1.12
 
