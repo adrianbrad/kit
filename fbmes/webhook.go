@@ -2,7 +2,6 @@ package fbmes
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
@@ -20,14 +19,20 @@ func VerificationHandler(verifyToken string) http.HandlerFunc {
 				"wrong validation token",
 				http.StatusNotFound,
 			)
-			Debug(`VerificationHandler: invalid token passed, expected: "%s", received: "%s"`, verifyToken, token)
+			debug(`VerificationHandler: invalid token passed, expected: "%s", received: "%s"`, verifyToken, token)
 			return
 		}
 
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(challenge))
-		Debug("VerificationHandler: webhook verified")
+		debug("VerificationHandler: webhook verified")
 	}
+}
+
+type Messaging struct {
+}
+
+type MessagingProcessor interface {
 }
 
 func MessageHandler() http.HandlerFunc {
@@ -44,20 +49,19 @@ func MessageHandler() http.HandlerFunc {
 		var body request
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			Debug(`MessageHandler: error while decoding request body: "%s"`, err.Error())
+			debug(`MessageHandler: error while decoding request body: "%s"`, err.Error())
 			return
 		}
 		if body.Object != "page" {
 			w.WriteHeader(http.StatusNotFound)
-			Debug(`MessageHandler: received invalid body.object: "%s"`, body.Object)
+			debug(`MessageHandler: received invalid body.object: "%s"`, body.Object)
 			return
 		}
 
-		Debug("MessageHandler: successfully received message: %+v", body)
+		debug("MessageHandler: successfully received message: %+v", body)
 
 		for _, entry := range body.Entry {
-			fmt.Println(entry.Messaging[0])
-			Debug("MessageHandler: processed entry: %+v", entry)
+			debug("MessageHandler: processed entry: %+v", entry)
 		}
 	}
 }

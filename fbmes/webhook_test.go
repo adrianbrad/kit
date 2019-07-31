@@ -13,8 +13,7 @@ import (
 
 func TestVerificationHandler(t *testing.T) {
 	logrus.SetLevel(logrus.DebugLevel)
-	DEBUG = true
-	Logger = logrus.StandardLogger()
+	SetDebug(logrus.StandardLogger())
 
 	r, err := http.NewRequest("", "?hub.verify_token=test&hub.challenge=CHALLENGE_ACCEPTED&hub.mode=subscribe", strings.NewReader(""))
 	require.Nil(t, err)
@@ -42,8 +41,7 @@ func TestVerificationHandler(t *testing.T) {
 
 func TestMessageHandler(t *testing.T) {
 	logrus.SetLevel(logrus.DebugLevel)
-	DEBUG = true
-	Logger = logrus.StandardLogger()
+	SetDebug(logrus.StandardLogger())
 
 	r, err := http.NewRequest("", "", strings.NewReader(`{"object": "page", "entry": [{"messaging": [{"message": "TEST_MESSAGE"}]}]}`))
 	require.Nil(t, err)

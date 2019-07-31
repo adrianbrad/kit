@@ -1,16 +1,17 @@
 package fbmes
 
-var DEBUG bool
-var Logger DebugLogger
+var logger DebugLogger
 
 type DebugLogger interface {
 	Debugf(string, ...interface{})
 }
 
-func Debug(message string, args ...interface{}) {
-	if DEBUG {
-		if Logger != nil {
-			Logger.Debugf(message, args...)
-		}
+func debug(message string, args ...interface{}) {
+	if logger != nil {
+		logger.Debugf(message, args...)
 	}
+}
+
+func SetDebug(l DebugLogger) {
+	logger = l
 }
