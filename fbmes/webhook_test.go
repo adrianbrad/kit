@@ -13,7 +13,7 @@ import (
 
 func TestVerificationHandler(t *testing.T) {
 	logrus.SetLevel(logrus.DebugLevel)
-	SetDebug(logrus.StandardLogger())
+	SetDebugLogger(logrus.StandardLogger())
 
 	r, err := http.NewRequest("", "?hub.verify_token=test&hub.challenge=CHALLENGE_ACCEPTED&hub.mode=subscribe", strings.NewReader(""))
 	require.Nil(t, err)
@@ -33,7 +33,7 @@ func TestVerificationHandler(t *testing.T) {
 	w = httptest.NewRecorder()
 	h.ServeHTTP(w, r)
 
-	assert.Equal(t, http.StatusNotFound, w.Code)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 	body, err = w.Body.ReadString('\n')
 	require.Nil(t, err)
 	assert.Equal(t, "wrong validation token\n", body)
@@ -41,7 +41,7 @@ func TestVerificationHandler(t *testing.T) {
 
 func TestMessageHandler(t *testing.T) {
 	logrus.SetLevel(logrus.DebugLevel)
-	SetDebug(logrus.StandardLogger())
+	SetDebugLogger(logrus.StandardLogger())
 
 	r, err := http.NewRequest("", "", strings.NewReader(`{"object": "page", "entry": [{"messaging": [{"message": "TEST_MESSAGE"}]}]}`))
 	require.Nil(t, err)
@@ -63,6 +63,6 @@ func TestMessageHandler(t *testing.T) {
 	w = httptest.NewRecorder()
 
 	h.ServeHTTP(w, r)
-	assert.Equal(t, http.StatusNotFound, w.Code)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 
 }

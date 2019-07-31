@@ -17,7 +17,7 @@ func VerificationHandler(verifyToken string) http.HandlerFunc {
 			http.Error(
 				w,
 				"wrong validation token",
-				http.StatusNotFound,
+				http.StatusBadRequest,
 			)
 			debug(`VerificationHandler: invalid token passed, expected: "%s", received: "%s"`, verifyToken, token)
 			return
@@ -53,7 +53,7 @@ func MessageHandler() http.HandlerFunc {
 			return
 		}
 		if body.Object != "page" {
-			w.WriteHeader(http.StatusNotFound)
+			w.WriteHeader(http.StatusBadRequest)
 			debug(`MessageHandler: received invalid body.object: "%s"`, body.Object)
 			return
 		}

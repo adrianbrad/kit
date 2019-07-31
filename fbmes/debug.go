@@ -12,6 +12,6 @@ func debug(message string, args ...interface{}) {
 	}
 }
 
-func SetDebug(l DebugLogger) {
+func SetDebugLogger(l DebugLogger) {
 	logger = l
 }
