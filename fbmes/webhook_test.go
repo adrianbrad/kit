@@ -11,6 +11,14 @@ import (
 	"testing"
 )
 
+type processorMock struct {
+}
+
+func (m processorMock) Process(mes Messaging) error {
+	logrus.Infof("messaging: %+v", mes)
+	return nil
+}
+
 func TestVerificationHandler(t *testing.T) {
 	logrus.SetLevel(logrus.DebugLevel)
 	SetDebugLogger(logrus.StandardLogger())
@@ -43,10 +51,35 @@ func TestMessageHandler(t *testing.T) {
 	logrus.SetLevel(logrus.DebugLevel)
 	SetDebugLogger(logrus.StandardLogger())
 
-	r, err := http.NewRequest("", "", strings.NewReader(`{"object": "page", "entry": [{"messaging": [{"message": "TEST_MESSAGE"}]}]}`))
+	r, err := http.NewRequest("", "", strings.NewReader(`
+{  
+   "object":"page",
+   "entry":[  
+      {  
+         "id":"315216248953883",
+         "time":1564645349030,
+         "messaging":[  
+            {  
+               "sender":{  
+                  "id":"1489738607768443"
+               },
+               "recipient":{  
+                  "id":"315216248953883"
+               },
+               "timestamp":1564645348623,
+               "message":{  
+                  "mid":"DykAFwzfisNw2jkIbiJFCsL8UL5vmFWFBwzUvvrgVn055a9kGotUNSxDwMx4YETIxHKUn7HEe3cgCftttKr59Q",
+                  "seq":0,
+                  "text":"a"
+               }
+            }
+         ]
+      }
+   ]
+}`))
 	require.Nil(t, err)
 	w := httptest.NewRecorder()
-	h := MessageHandler()
+	h := MessageHandler(processorMock{})
 
 	h.ServeHTTP(w, r)
 	assert.Equal(t, http.StatusOK, w.Code)
