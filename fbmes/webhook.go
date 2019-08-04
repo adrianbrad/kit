@@ -3,7 +3,6 @@ package fbmes
 import (
 	"encoding/json"
 	"github.com/sirupsen/logrus"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 	"time"
@@ -23,13 +22,13 @@ func VerificationHandler(verifyToken string) http.HandlerFunc {
 				"wrong validation token",
 				http.StatusBadRequest,
 			)
-			debug(`VerificationHandler: invalid token passed, expected: "%s", received: "%s"`, verifyToken, token)
+			debug(`fbmes: VerificationHandler: invalid token passed, expected: "%s", received: "%s"`, verifyToken, token)
 			return
 		}
 
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(challenge))
-		debug("VerificationHandler: webhook verified")
+		debug("fbmes: VerificationHandler: webhook verified")
 	}
 }
 
@@ -100,27 +99,22 @@ func MessageHandler(m MessagingProcessor) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
-		b, _ := ioutil.ReadAll(r.Body)
-		logrus.Infof("%s", b)
 		var body request
-		json.Unmarshal(b, &body)
-
-		//if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		//	w.WriteHeader(http.StatusBadRequest)
-		//	debug(`MessageHandler: error while decoding request body: "%s"`, err.Error())
-		//	return
-		//}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			debug(`fbmes: MessageHandler: error while decoding request body: "%s"`, err.Error())
+			return
+		}
 		if body.Object != "page" {
 			w.WriteHeader(http.StatusBadRequest)
-			debug(`MessageHandler: received invalid body.object: "%s"`, body.Object)
+			debug(`fbmes: MessageHandler: received invalid body.object: "%s"`, body.Object)
 			return
 		}
 
-		debug("MessageHandler: successfully received message: %+v", body)
+		debug("fbmes: MessageHandler: successfully received message: %+v", body)
 
 		for _, entry := range body.Entry {
 			for _, messaging := range entry.Messaging {
-				logrus.Infof("messaging %+v", messaging)
 				err := m.Process(messaging)
 				if err != nil {
 					logrus.Errorf("message processor: %s", err.Error())
